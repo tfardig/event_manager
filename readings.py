@@ -1,4 +1,3 @@
-from pymongo import MongoClient
 import datetime
 import time
 import redis
@@ -82,7 +81,7 @@ def insert_reading(timestamp, streamname, type, value, db=None):
 
 def insert_recent_reading(timestamp, sensor, type, value, db=None):
     if not db:
-        db = get_redis_db()
+        db = get_db()
 
         time_ = datetime.datetime.utcfromtimestamp(timestamp)
         db.lpush('recent:%s' % str(sensor), '{"type":"%s", "value":"%s", "time":"%s"}' % (type, value, time_.strftime('%Y%m%d %H:%M')))
@@ -91,7 +90,7 @@ def insert_recent_reading(timestamp, sensor, type, value, db=None):
 
 def get_sensor_stream(sid, db=None):
     if not db:
-        db = get_redis_db()
+        db = get_db()
 
     stream = db.get("sensor:%s" % sid)
     if stream:
