@@ -1,0 +1,3 @@
+redis==2.10.3
+requests==2.4.3
+tellcore-py==1.0.3
