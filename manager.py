@@ -3,6 +3,7 @@ import time
 import datetime
 import logging
 import redis
+import trollius
 
 import readings
 import devices
@@ -14,27 +15,35 @@ class EventManager():
         
         logging.basicConfig(filename='/home/pi/logs/EventManager.log', level=logging.INFO)
         logging.info('Initialzing...')
-        self.core = td.TelldusCore()
+        
+        loop = trollius.get_event_loop()
+        dispatcher = td.AsyncioCallbackDispatcher(loop)
+        self.core = td.TelldusCore(callback_dispatcher=dispatcher)
 #        self.core.register_raw_device_event(self.parse_event)
         self.core.register_device_event(self.parse_device_event)
         self.core.register_sensor_event(self.parse_sensor_event)
 
         logging.info('Initialized. Starting listener loop')
-        while True:
-            self.handledevents = []
-            self.core.callback_dispatcher.process_pending_callbacks()
-            time.sleep(0.5)
+        
+        loop.run_forever()
+#        while True:
+#            self.handledevents = []
+#            self.core.callback_dispatcher.process_pending_callbacks()
+#            time.sleep(0.5)
 
     def already_handled(self, data):
         """Check if the given data string has already been handled"""
         if data in self.handledevents:
             return True
         self.handledevents.append(data)
+        self.handledevents = self.handledevents[-20:]
 
         return False
         
 
     def parse_device_event(self, _id, method, data, cid):
+        for d in self.core.devices():
+            logging.info(d.id)
         logging.info({"id": _id, "method": method, "data": data, "cid": cid})
 
 
