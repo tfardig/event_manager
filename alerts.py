@@ -18,17 +18,14 @@ def get_db():
 def get_alerts(streamname):
     db = get_db()
     alertsstr = db.get('alerts:%s' % streamname)
-    print alertsstr
     if alertsstr:
        return json.loads(alertsstr)
     else:
        return []
 
 
-
 def set_alerts(streamname, alerts):
     db = get_db()
-    print json.dumps(alerts)
     db.set('alerts:%s' % streamname, json.dumps(alerts))
 
 
@@ -40,8 +37,7 @@ def add_alert(streamname, alert):
 
 
 def _check_alert_part(tuple, value, time_diff, value_diff):
-    print tuple
-    return {
+    r = {
         'or': lambda:any([_check_alert_part(t, value, time_diff, value_diff) for t in tuple[1]]),
         'and': lambda:all([_check_alert_part(t, value, time_diff, value_diff) for t in tuple[1]]),
         'lt': lambda:value < tuple[1],
@@ -49,9 +45,11 @@ def _check_alert_part(tuple, value, time_diff, value_diff):
         'time_diff': lambda:time_diff == None or time_diff > tuple[1],
         'value_diff': lambda:value_diff == None or value_diff > tuple[1]
     }[tuple[0]]()
+    return r
 
 
 def check_alert(alert, streamname, value):
+    value = float(value)
     last_alert = alert.get('last_alert')
     time_diff = None
     value_diff = None
@@ -60,6 +58,7 @@ def check_alert(alert, streamname, value):
         value_diff = value - last_alert['value']
 
     if _check_alert_part(alert['alert_when'], value, time_diff, value_diff):
+        print 'alerting'
         alert['last_alert'] = {'time': time.time(), 'value': value}
         notifications = alert.get('notifications')
         for notification in notifications:
