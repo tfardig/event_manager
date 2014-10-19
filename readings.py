@@ -4,7 +4,12 @@ import time
 import redis
 import json
 import random
+from ConfigParser import SafeConfigParser
 
+config = SafeConfigParser()
+config.read('config.cfg')
+DB_HOST = config.get('Redis', 'host')
+DB = config.get('Redis', 'db')
 
 def lock_key(key, db):
     ok = False
@@ -40,14 +45,14 @@ def unlock_key(key, value, db):
         return True
 
 
-def get_redis_db():
-    db = redis.StrictRedis(host='192.168.1.6', port=6379, db=0)
+def get_db():
+    db = redis.StrictRedis(host=DB_HOST, db=DB)
     return db
 
 
 def insert_reading(timestamp, streamname, type, value, db=None):
     if not db:
-        db = get_redis_db()
+        db = get_db()
 
     time_ = datetime.datetime.utcfromtimestamp(timestamp)
     key = "%s:%s:%s" % (streamname, type, time_.date().strftime('%Y%m%d'))

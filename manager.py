@@ -96,7 +96,7 @@ class EventManager():
         if stream:
             readings.insert_reading(timestamp, stream, dataType, value)
             if dataType == "temp":
-                alerts.check_alert(stream, value)
+                alerts.check_alerts(stream, value)
 
 if __name__ == "__main__":
     EventManager()
