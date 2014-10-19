@@ -215,3 +215,5 @@ pip-log.txt
 .mr.developer.cfg
 
 config.cfg
+env/
+nohup.out
