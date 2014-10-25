@@ -41,7 +41,6 @@ def _get_device_status(device):
 
 @app.route("/devices/")
 def list_devices():
-    devices = _get_devices()
 
     ds = []
     for device in _get_devices():
@@ -51,26 +50,30 @@ def list_devices():
             'status': _get_device_status(device)
         })
 
-    def _get_device_by_id(device_id):
-        return next((x for x in devices if x.id == device_id), None)
 
-    @app.route("/turnon/<int:device_id>")
-    def turn_on(device_id):
-        d = _get_device_by_id()
-        if d:
-            d.turn_on()
-            return jsonify(message='Device was turned on')
-        else:
-            return _json_error(404, 'Device not found')
+def _get_device_by_id(device_id):
+    devices = _get_devices()
+    return next((x for x in devices if x.id == device_id), None)
 
-    @app.route("/turnoff/<int:device_id>")
-    def turn_off(device_id):
-        d = _get_device_by_id(device_id)
-        if d:
-            d.turn_off()
-            return jsonify(message='Device was turned off')
-        else:
-            return _json_error(404, 'Device not found')
+
+@app.route("/turnon/<int:device_id>")
+def turn_on(device_id):
+    d = _get_device_by_id()
+    if d:
+        d.turn_on()
+        return jsonify(message='Device was turned on')
+    else:
+        return _json_error(404, 'Device not found')
+
+
+@app.route("/turnoff/<int:device_id>")
+def turn_off(device_id):
+    d = _get_device_by_id(device_id)
+    if d:
+        d.turn_off()
+        return jsonify(message='Device was turned off')
+    else:
+        return _json_error(404, 'Device not found')
 
 if __name__ == "__main__":
     app.run()
