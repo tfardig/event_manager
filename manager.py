@@ -4,6 +4,8 @@ import datetime
 import logging
 import redis
 import trollius
+import os.path
+from ConfigParser import SafeConfigParser
 
 import readings
 import devices
@@ -13,7 +15,12 @@ class EventManager():
 
     def __init__(self):
         
-        logging.basicConfig(filename='/home/pi/logs/EventManager.log', level=logging.INFO)
+        config = SafeConfigParser()
+        config.read('config.cfg')
+        self.data_dir = config.get('Data', 'dir')
+        log_dir = config.get('Logging', 'dir')
+        log_path = os.path.join(log_dir, 'EventManager.log')
+        logging.basicConfig(filename=log_path, level=logging.INFO)
         logging.info('Initialzing...')
         
         loop = trollius.get_event_loop()
@@ -67,7 +74,8 @@ class EventManager():
                     alerts.check_alerts(stream, value)
         except redis.exceptions.ConnectionError:
             logging.warning('Could not connect to Redis. Falling back to writing to readings.txt')
-            with open('/home/pi/data/readings.txt', 'a') as f:
+            data_path = os.path.join(self.data_dir, 'readings.txt')
+            with open(data_path, 'a') as f:
                 f.write('%s,%s,%s,%s\n' % (timestamp, id_, dataType, value))
 
 if __name__ == "__main__":
