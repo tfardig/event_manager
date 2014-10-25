@@ -2,3 +2,4 @@ redis==2.10.3
 requests==2.4.3
 tellcore-py==1.0.3
 trollius==1.0.2
+Flask==0.10.1
