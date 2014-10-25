@@ -29,7 +29,7 @@ def _get_devices():
 
 
 def _get_device_status(device):
-    v = device.get_last_command(TELLSTICK_TURNON | TELLSTICK_TURNOFF)
+    v = device.last_sent_command(TELLSTICK_TURNON | TELLSTICK_TURNOFF)
     try:
         return {
             1: 'on',
