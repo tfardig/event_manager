@@ -25,7 +25,7 @@ def _json_error(status_code, message):
 
 def _get_devices():
     core = telldus.TelldusCore()
-    return core.devices
+    return core.devices()
 
 
 def _get_device_status(device):
