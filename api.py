@@ -49,16 +49,16 @@ def list_devices():
             'name': device.name,
             'status': _get_device_status(device)
         })
-
+    return jsonify(devices=ds)
 
 def _get_device_by_id(device_id):
     devices = _get_devices()
     return next((x for x in devices if x.id == device_id), None)
 
 
-@app.route("/turnon/<int:device_id>")
+@app.route("/devices/<int:device_id>/turnon")
 def turn_on(device_id):
-    d = _get_device_by_id()
+    d = _get_device_by_id(device_id)
     if d:
         d.turn_on()
         return jsonify(message='Device was turned on')
@@ -66,7 +66,7 @@ def turn_on(device_id):
         return _json_error(404, 'Device not found')
 
 
-@app.route("/turnoff/<int:device_id>")
+@app.route("/devices/<int:device_id>/turnoff")
 def turn_off(device_id):
     d = _get_device_by_id(device_id)
     if d:
@@ -76,4 +76,4 @@ def turn_off(device_id):
         return _json_error(404, 'Device not found')
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0', debug=True)
